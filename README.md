@@ -53,6 +53,16 @@ Most, if not all tools are symlinked so no path is required.
 Tool Locations: ~/reconTools
 
 ## Usage
+
+### scheduler.sh
+You have to supply a list of targets.txt. These should take the format of 
+```
+a.domain.com /path/to/a.domain.com_output_dir
+b.domain.com /path/to/b.domain.com_output_dir
+...
+```
+
+### reconSai
 ```
 Example usage: /usr/local/bin/reconSai -d domain.com [options]
                /usr/local/bin/reconSai -d domain.com --all
@@ -94,3 +104,6 @@ Other stuff to check out:
         * Websites
                 - spyonweb.com - Google Analytics
 ```
+
+
+
