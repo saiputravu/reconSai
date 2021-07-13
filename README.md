@@ -8,7 +8,7 @@
 * [Usage](#usage)
 
 ## About The Project
-This is a hobby project I created in order to bring all the recon tools together into one place. The main code is written in pure bash so prepare to feast your eyes upon lines upon lines of disgusting one-liners, janky code and hardcoded values!
+This is a hobby project I created in order to bring all the recon tools together into one place. The main code is written in pure bash so prepare to feast your eyes upon lines upon lines of disgusting one-liners, janky code and hardcoded values! If you're reviewing, main code is in lib.sh
 
 ## Main Features
 I tried making this code as portable as possible, but only have tested on Ubuntu and Kali. The tools are not regularly updated and some potentially may be out of date at the time of installation (fully updated as of 2021).
