@@ -1,0 +1,268 @@
+#!/bin/bash
+
+# Make sure this lib path is absoluet
+# I cba to fix it so its relative 
+# Probably split $0 
+TOOLSDIR=~/reconTools/
+. $TOOLSDIR/reconSai/lib.sh
+
+
+# if [ "$#" -ne 1 ]; then
+# 	echo "Usage: $0 <domain>"
+# 	exit
+# fi
+
+POSITIONAL=()
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -n|--nmap)
+    NMAP=YES
+    shift 
+    ;;
+    -d|--domain)
+    DOMAIN="$2"
+    shift 
+	shift
+    ;;
+    -s|--screenshot)
+    SCREENSHOT=YES
+    shift
+    ;;
+    -m|--massdns)
+    MASSDNS=YES
+    shift
+    ;;
+    -M|--monitor)
+    MONITOR=YES
+	PATHTODOMAINS="$2"
+    shift
+	shift
+    ;;
+    -l|--linkfinder)
+    LINKFINDER=YES
+    shift
+    ;;
+    -a|--noalive)
+    NOALIVE=YES
+    shift
+    ;;
+    -c|--crawl)
+    CRAWL=YES
+    shift
+    ;;
+    -G|--github)
+    GITHUB=YES
+    shift
+    ;;
+    -g|--gf)
+    GF=YES
+    shift
+    ;;
+    -e|--extra)
+    EXTRA=YES
+    shift
+    ;;
+    -q|--quiet)
+    QUIET=YES
+    shift
+    ;;
+    -S|--shodan)
+    SHODAN=YES
+	SHODANTYPE="$2"
+	SHODANSTR="$3"
+    shift
+    shift # count|ip|query
+    shift # query string
+    ;;
+	-h|--help)
+	HELP=YES
+	shift
+	;;
+	--all)
+	ALL=YES
+	shift
+	;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+
+print_help () {
+	echo "${red}Example usage${reset}: $0 -d domain.com [options]"
+	echo "               $0 -d domain.com --all"
+	echo "               $0 -e [options]"
+	echo "               $0 -e -S count apache" 
+	echo "               $0 -e -M ./domains-wildcards.txt -d domain.com" 
+	echo
+	echo -e "\t--all\t\t\t\t\t${cyan}Run everything${reset}\t\t\t\t\t\t\t${red}[active AND passive]${reset}"
+	echo 
+	echo -e "\t-d|--domain <domain>\t\t\t${cyan}Domain to recon\t\t\t\t\t\t\t${red}[active]${reset}"
+	echo -e "\t-n|--nmap\t\t\t\t${cyan}Allow portscanning\t\t\t\t\t\t${red}[active]${reset}"
+	echo -e "\t-m|--massdns\t\t\t\t${cyan}Allow DNS queries\t\t\t\t\t\t${red}[active]${reset}"
+	echo -e "\t-s|--screenshot\t\t\t\t${cyan}Allow screenshotting\t\t\t\t\t\t${red}[active]${reset}"
+	echo -e "\t-l|--linkfinder\t\t\t\t${cyan}Check domain js files\t\t\t\t\t\t${red}[active]${reset}"
+	echo -e "\t-M|--monitor <domains-wildcard.txt>\t${cyan}Run monitor mode (pass previously discovered domains.txt)\t${yellow}[passive]${reset}"
+	echo -e "\t-c|--crawl\t\t\t\t${cyan}Allow searching repos to get previous urls discovered\t\t${yellow}[passive]${reset}"
+	echo -e "\t-g|--gf\t\t\t\t\t${cyan}Search through the waybackurls.txt file for vulnerabilities\t${yellow}[passive]${reset}"
+	echo -e "\t-S|--shodan <ip|query|count> <string>\t${cyan}Run a shodan query or ip or just get summary\t\t\t${yellow}[passive]${reset}"
+	echo -e "\t-a|--noalive\t\t\t\t${cyan}Disable checking alive subdomains (note can't run other active)\t${yellow}[passive-only]${reset}"
+	echo
+	echo -e "\t-q|--quiet\t\t\t\t${cyan}Don't print banners${reset}"
+	echo -e "\t-e|--extra\t\t\t\t${cyan}Only run non-main features${reset}"
+	echo -e "\t-G|--github\t\t\t\t${cyan}Print some github dork links to try out\t\t\t\t${reset}"
+	echo
+	echo -e "${green}Other stuff to check out:${reset}"
+	echo -e "\t${purple}* TXT,CNAME,MX Records${reset}"
+	echo -e "\t${purple}* Subdomain takeover${reset}"
+	echo -e "\t${purple}* https://raw.githubusercontent.com/sushiwushi/bug-bounty-dorks/master/dorks.txt${reset}"
+	echo
+	echo -e "\t${purple}* S3 Buckets${reset}"
+	echo -e "\t\t${blue}- site:s3.amazonaws.com query (google)${reset}"
+	echo -e "\t${purple}* Github recon${reset}"
+	echo -e "\t\t${blue}- truffleHog${reset}"
+	echo -e "\t\t${blue}- gitRob${reset}"
+	echo -e "\t${purple}* Trello${reset}"
+	echo -e "\t\t${blue}- site:trello.com intext:ftp (...etc) (google)${reset}"
+	echo -e "\t${purple}* amass active${reset}"
+	echo -e "\t\t${blue}- amass enum -rf /opt/my-lists/resolvers -nf domains.txt -v -ip -active -min-for-recursive 3 -df root-domains -o output-subdomains.txt${reset}"
+	echo -e "\t${purple}* Websites${reset}"
+	echo -e "\t\t${blue}- spyonweb.com - Google Analytics${reset}"
+}
+
+if [ -z $QUIET ]; then
+	echo -e "${purple}" \
+			"   ▄████████    ▄████████  ▄████████  ▄██████▄  ███▄▄▄▄      ▄████████    ▄████████  ▄█  \n" \
+			"  ███    ███   ███    ███ ███    ███ ███    ███ ███▀▀▀██▄   ███    ███   ███    ███ ███  \n" \
+			"  ███    ███   ███    █▀  ███    █▀  ███    ███ ███   ███   ███    █▀    ███    ███ ███▌ \n" \
+			" ▄███▄▄▄▄██▀  ▄███▄▄▄     ███        ███    ███ ███   ███   ███          ███    ███ ███▌ \n" \
+			"▀▀███▀▀▀▀▀   ▀▀███▀▀▀     ███        ███    ███ ███   ███ ▀███████████ ▀███████████ ███▌ \n" \
+			"▀███████████   ███    █▄  ███    █▄  ███    ███ ███   ███          ███   ███    ███ ███  \n" \
+			"  ███    ███   ███    ███ ███    ███ ███    ███ ███   ███    ▄█    ███   ███    ███ ███  \n" \
+			"  ███    ███   ██████████ ████████▀   ▀██████▀   ▀█   █▀   ▄████████▀    ███    █▀  █▀   \n" \
+			"${reset}\n"
+fi
+
+if [ -z $DOMAIN ] && [ -z $EXTRA ]; then
+	HELP=YES
+fi
+
+if [ $ALL ]; then
+	NMAP=YES
+	SCREENSHOT=YES
+	LINKFINDER=YES
+	CRAWL=YES
+	MASSDNS=YES
+	GF=YES
+fi
+
+if [ $HELP ]; then
+	print_help
+	exit
+fi
+
+if [ -z $EXTRA ]; then
+	if [ -z $NOALIVE ]; then
+		main $DOMAIN "t"
+	else
+		main $DOMAIN "f"
+	fi
+fi
+
+if [ $SHODAN ]; then
+	if [ $SHODANTYPE != "ip" ] && [ $SHODANTYPE != "count" ] && [ $SHODANTYPE != "query" ]; then
+		print_help
+		echo -e "${red}\n[!] SHODAN - Malformed shodan type\n${reset}"
+		exit
+	fi
+	if [ -z $SHODANSTR ]; then
+		print_help
+		echo -e "${red}\n[!] SHODAN - You must provide a query string!\n${reset}"
+		exit
+	fi 
+
+	shodanQuery $SHODANTYPE $SHODANSTR 
+fi
+
+if [ $MONITOR ]; then
+	if [ -z $DOMAIN ]; then
+		echo -e "${red}\n[!] MONITOR - You must provide a domain argument (-d domain.com) !\n${reset}"
+		exit
+	fi
+	if [ -z $PATHTODOMAINS ]; then
+		echo -e "${red}\n[!] MONITOR - You must add domains.txt argument (-M /path/to/domains-wildcards.txt)!\n${reset}"
+		exit
+	fi
+	if [ ! -f $PATHTODOMAINS ]; then
+		echo -e "${red}\n[!] MONITOR - Please ensure that ${cyan}$PATHTODOMAINS${red} exists\n${reset}"
+		exit
+	fi
+	monitor_mode $DOMAIN $PATHTODOMAINS
+fi
+
+if [ $SCREENSHOT ] && [ -z $NOALIVE ]; then
+	echo -e "${blue}[*] ${yellow}Running screenshot tools on subdomains found\n${reset}"
+	domain_ss alive-domains-http.txt
+fi
+if [ $NMAP ] && [ -z $NOALIVE ]; then
+	echo -e "${blue}[*] ${yellow}Running portscanning tools on subdomains found\n${reset}"
+	portscan ips.txt
+fi
+if [ $CRAWL ]; then
+	echo "${blue}[*] ${yellow}Fetching all URLs${reset}"
+	echo -e "${red}[!] ${yellow}Note ... this could take a while\n${reset}"
+	domain_wayback
+	crawler
+fi
+
+if [ $GF ]; then
+	if [ -f wayback/waybackurls.txt ] && [ -f crawler/all.txt ]; then
+		echo "${blue}[*] ${yellow}Doing tomnomnom's gf ... ${reset}"
+		gf_patterns
+	else 
+		echo "${red}[!] ./wayback/waybackurls.txt DOESNT EXIST!${reset}"
+		echo "${red}[!] ./crawler/all.txt DOESNT EXIST!${reset}"
+		exit
+	fi
+fi
+
+if [ $LINKFINDER ]; then
+	if [ $DOMAIN ]; then
+		domain_linkfinder $DOMAIN
+	else
+		echo -e "\n${red}You need to specify a domain with linkfinder${reset}"
+		exit
+	fi
+fi
+
+if [ $MASSDNS ]; then
+	if [ $DOMAIN ]; then
+		massdnssh $DOMAIN
+	else
+		echo -e "\n${red}You need to specify a domain with massdns${reset}"
+		exit
+	fi
+fi
+
+echo 
+echo "${red}[!] ${green}Finished recon stage${reset}"
+echo
+
+if [ $GITHUB ]; then
+	if [ $DOMAIN ]; then
+	domain_github_dorks $DOMAIN
+	else
+		echo -e "\n${red}You need to specify a domain with github${reset}"
+		exit
+	fi
+fi
+
+stty sane
+
+# TO DO COPY LAYOUT OF https://subdomainfinder.c99.nl/scans/2020-05-14/spotify.com 
+# For html reports
