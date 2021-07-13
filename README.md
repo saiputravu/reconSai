@@ -13,7 +13,7 @@ This is a hobby project I created in order to bring all the recon tools together
 ## Main Features
 I tried making this code as portable as possible, but only have tested on Ubuntu and Kali. The tools are not regularly updated and some potentially may be out of date at the time of installation (fully updated as of 2021).
 
-Key Features:
+### Key Features:
 * Reconnaissance script
     - Subdomain discovery (passive and active)
     - Portscanning (masscan -> nmap)
@@ -28,7 +28,7 @@ Key Features:
     - Checks and updates a file for new subdomains
     - Run it as a cronjob and give it a list of targets
 
-Features yet-to-be-implemented (when I am free):
+### Features yet-to-be-implemented (when I am free):
 * Reconnaissance script
     - Interactive javascript website w/ database management for output
     - Github scanning (trufflehog & gitRob)
