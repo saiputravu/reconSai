@@ -59,6 +59,7 @@ You have to supply a list of targets.txt. These should take the format of
 ```
 a.domain.com /path/to/a.domain.com_output_dir
 b.domain.com /path/to/b.domain.com_output_dir
+a.domain2.com /path/to/b.domain.com_output_dir
 ...
 ```
 
