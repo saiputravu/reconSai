@@ -76,7 +76,7 @@ GO111MODULE=on go get -v github.com/OWASP/Amass/v3/...
 # git clone https://github.com/OWASP/Amass.git
 
 # Install nmap
-sudo apt install nmap masscan -y
+sudo apt install nmap -y
 
 # Install aquatone
 cd  $TOOLSDIR
