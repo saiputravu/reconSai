@@ -37,6 +37,13 @@ make
 cp -r lists $TOOLSDIR
 sudo ln -s `pwd`/bin/massdns /usr/local/bin/massdns
 
+# Install masscan
+cd $TOOLSDIR
+git clone https://github.com/robertdavidgraham/masscan
+cd massdns
+make
+sudo ln -s `pwd`/bin/masscan /usr/local/bin/masscan
+
 # Install Chromium Browser
 sudo apt install chromium-browser -y
 
@@ -104,7 +111,7 @@ echo 'source $GOPATH/src/github.com/tomnomnom/gf/gf-completion.bash' >> ~/.bashr
 cp -r $GOPATH/src/github.com/tomnomnom/gf/examples ~/.gf
 
 # Install waybackurls
-GO111MODULE=on go get github.com/tomnomnom/waybackurls
+go get github.com/tomnomnom/waybackurls
 
 # Install assetfinder
 GO111MODULE=on go get -u github.com/tomnomnom/assetfinder
