@@ -54,7 +54,7 @@ case $key in
     shift
     ;;
     -w|--wayback)
-    CRAWL=YES
+    WAYBACK=YES
     shift
     ;;
     -G|--github)
