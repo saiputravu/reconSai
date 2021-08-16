@@ -189,9 +189,20 @@ wayback_gen_wordlists () {
 }
 
 domain_wayback () {
+	if [ "$#" -ne 1 ]; then
+		echo "${red}Usage: domain_wayback <output-dir>${reset}"
+		return
+	fi
+
+	cd output-domains-$1
 	mkdir wayback
 
-	cat alive-domains.txt | waybackurls > wayback/waybackurls.txt
+	if [ ! -f domains.txt ]; then 
+		echo "${red}[!] $1/domains.txt does not exist!"
+		cd ..
+		return
+	fi
+	cat domains.txt | waybackurls > wayback/waybackurls.txt
 
 	# Url parameters
 	cat wayback/waybackurls.txt | sort -u | unfurl --unique keys > wayback/params.txt 
@@ -215,6 +226,7 @@ domain_wayback () {
 	[ -s wayback/txturls.txt ] 	&& echo "${blue}[+] ${green}Wordlist saved to output-domains/wayback/txturls.txt${reset}"
 
 	wayback_gen_wordlists
+	cd ..
 }
 
 domain_ss () {

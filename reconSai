@@ -224,9 +224,14 @@ if [ $CRAWL ]; then
 	crawler
 fi
 if [ $WAYBACK ]; then
-	echo "${blue}[*] ${yellow}Fetching all URLs${reset}"
-	echo -e "${red}[!] ${yellow}Note ... this could take a while\n${reset}"
-	domain_wayback
+	if [ $DOMAIN ]; then
+		echo "${blue}[*] ${yellow}Fetching all URLs${reset}"
+		echo -e "${red}[!] ${yellow}Note ... this could take a while\n${reset}"
+		domain_wayback $DOMAIN
+	else 
+		echo -e "\n${red}You need to specify a domain with wayback${reset}"
+		exit
+	fi
 fi
 
 if [ $GF ]; then
