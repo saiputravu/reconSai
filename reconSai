@@ -53,6 +53,10 @@ case $key in
     CRAWL=YES
     shift
     ;;
+    -w|--wayback)
+    CRAWL=YES
+    shift
+    ;;
     -G|--github)
     GITHUB=YES
     shift
@@ -107,8 +111,9 @@ print_help () {
 	echo -e "\t-m|--massdns\t\t\t\t${cyan}Allow DNS queries\t\t\t\t\t\t${red}[active]${reset}"
 	echo -e "\t-s|--screenshot\t\t\t\t${cyan}Allow screenshotting\t\t\t\t\t\t${red}[active]${reset}"
 	echo -e "\t-l|--linkfinder\t\t\t\t${cyan}Check domain js files\t\t\t\t\t\t${red}[active]${reset}"
+	echo -e "\t-c|--crawl\t\t\t\t${cyan}Allow searching repos to get previous urls discovered\t\t${red}[active]${reset}"
 	echo -e "\t-M|--monitor <domains-wildcard.txt>\t${cyan}Run monitor mode (pass previously discovered domains.txt)\t${yellow}[passive]${reset}"
-	echo -e "\t-c|--crawl\t\t\t\t${cyan}Allow searching repos to get previous urls discovered\t\t${yellow}[passive]${reset}"
+	echo -e "\t-w|--wayback\t\t\t\t${cyan}Allow searching repos to get previous urls discovered\t\t${yellow}[passive]${reset}"
 	echo -e "\t-g|--gf\t\t\t\t\t${cyan}Search through the waybackurls.txt file for vulnerabilities\t${yellow}[passive]${reset}"
 	echo -e "\t-S|--shodan <ip|query|count> <string>\t${cyan}Run a shodan query or ip or just get summary\t\t\t${yellow}[passive]${reset}"
 	echo -e "\t-a|--noalive\t\t\t\t${cyan}Disable checking alive subdomains (note can't run other active)\t${yellow}[passive-only]${reset}"
@@ -216,8 +221,12 @@ fi
 if [ $CRAWL ]; then
 	echo "${blue}[*] ${yellow}Fetching all URLs${reset}"
 	echo -e "${red}[!] ${yellow}Note ... this could take a while\n${reset}"
-	domain_wayback
 	crawler
+fi
+if [ $WAYBACK ]; then
+	echo "${blue}[*] ${yellow}Fetching all URLs${reset}"
+	echo -e "${red}[!] ${yellow}Note ... this could take a while\n${reset}"
+	domain_wayback
 fi
 
 if [ $GF ]; then
