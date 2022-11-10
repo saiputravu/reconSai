@@ -71,7 +71,7 @@ echo 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin' >> ~/.bashrc
 echo 'export GO111MODULE=off' >> ~/.bashrc
 
 # Install amass
-GO111MODULE=on go get -v github.com/OWASP/Amass/v3/...
+GO111MODULE=on go install -v github.com/OWASP/Amass/v3/...@master
 # cd $TOOLSDIR
 # git clone https://github.com/OWASP/Amass.git
 
@@ -87,7 +87,7 @@ chmod +x aquatone
 sudo ln -s `pwd`/aquatone /usr/local/bin/aquatone
 
 # Install subfinder
-GO111MODULE=on go get -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder
+GO111MODULE=on go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
 
 # Install sublist3r
 cd $TOOLSDIR
@@ -106,24 +106,24 @@ sudo chmod +x /usr/local/bin/passivehunter
 cd $TOOLSDIR
 
 # Install gf (tomnomnom)
-go get -u github.com/tomnomnom/gf
+go install github.com/tomnomnom/gf@latest
 echo 'source $GOPATH/src/github.com/tomnomnom/gf/gf-completion.bash' >> ~/.bashrc
 cp -r $GOPATH/src/github.com/tomnomnom/gf/examples ~/.gf
 
 # Install waybackurls
-go get github.com/tomnomnom/waybackurls
+go install github.com/tomnomnom/waybackurls@latest
 
 # Install assetfinder
-GO111MODULE=on go get -u github.com/tomnomnom/assetfinder
+GO111MODULE=on go install github.com/tomnomnom/assetfinder@latest
 
 # Install ffuf
-GO111MODULE=on go get -u github.com/ffuf/ffuf
+GO111MODULE=on go install github.com/ffuf/ffuf@latest
 
 # Install unfurl
-GO111MODULE=on go get -u github.com/tomnomnom/unfurl
+GO111MODULE=on go install github.com/tomnomnom/unfurl@latest
 
 # Install gau
-GO111MODULE=on go get -u github.com/lc/gau
+GO111MODULE=on go install github.com/lc/gau@latest
 
 echo "Finished installing ... "
 echo "[!] Restart your terminal for changes to take effect / source your rc file"
