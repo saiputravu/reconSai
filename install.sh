@@ -125,6 +125,9 @@ GO111MODULE=on go install github.com/tomnomnom/unfurl@latest
 # Install gau
 GO111MODULE=on go install github.com/lc/gau@latest
 
+# Install httprobe
+GO111MODULE=on go install github.com/tomnomnom/httprobe@latest
+
 echo "Finished installing ... "
 echo "[!] Restart your terminal for changes to take effect / source your rc file"
 echo 

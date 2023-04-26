@@ -154,13 +154,17 @@ domain_alive_check () {
 		echo "${red}Usage: domain_alive_check <domains.txt>${reset}"
 		return
 	fi
+
+    # Concurrency for probing HTTP
+    INT_CONCURRENCY=1000
 	# Alive check
 	[ ! -d temp ] && mkdir temp
 	echo -e "${blue}[*] ${yellow}Checking alive subdomains${reset}"
-	echo -e "${blue}[?] ${yellow}Fuff output: \n${reset}"
-	ffuf -w $1 -u "http://FUZZ" -o temp/ffuf-check.txt -of md > /dev/null
+	echo -e "${blue}[+] ${yellow}Running HTTProbe: \n${reset}"
+    cat $1 | httprobe -c $INT_CONCURRENCY | tee temp/alive-domains.txt
 	echo
-	cat temp/ffuf-check.txt | grep -e 301 -e 200 -e 403 -e 204 -e 302 -e 307 -e 401 | cut -d'|' -f2 | tr -d ' ' > alive-domains.txt
+    cp temp/alive-domains.txt alive-domains-http.txt
+    cat temp/alive-domains.txt | sed 's/https:\/\///g; s/http:\/\///g' | sort -u > alive-domains.txt
 	
 }
 
@@ -270,9 +274,7 @@ domain_http_ip_generation () {
 	echo -e "${blue}[*] ${yellow}Enumerating IPs, mail servers and aliases${reset}"
 
 	# If you don't have parallel or don't want to do multithreading
-	# for i in `cat $1`; do echo "http://$i" >> alive-domains-http.txt; host $i | grep -v "not found" | sed "s/has address //" | sed "s/has IPv6 address //" >> alive-hosts-tmp.txt; done
 
-	parallel -j20 --plus echo "http://{}" :::: $1 > alive-domains-http.txt
 	parallel -j30 --plus 'host "{}" | grep -v "not found" |  sed "s/has address //" | sed "s/has IPv6 address //" ' :::: $1 | uniq | sort -n > resolved-hosts.txt
 
 	# Have a list of IP address
