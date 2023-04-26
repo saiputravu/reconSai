@@ -40,7 +40,7 @@ sudo ln -s `pwd`/bin/massdns /usr/local/bin/massdns
 # Install masscan
 cd $TOOLSDIR
 git clone https://github.com/robertdavidgraham/masscan
-cd massdns
+cd masscan
 make
 sudo ln -s `pwd`/bin/masscan /usr/local/bin/masscan
 
@@ -106,7 +106,7 @@ sudo chmod +x /usr/local/bin/passivehunter
 cd $TOOLSDIR
 
 # Install gf (tomnomnom)
-go install github.com/tomnomnom/gf@latest
+go get -u github.com/tomnomnom/gf@latest
 echo 'source $GOPATH/src/github.com/tomnomnom/gf/gf-completion.bash' >> ~/.bashrc
 cp -r $GOPATH/src/github.com/tomnomnom/gf/examples ~/.gf
 
